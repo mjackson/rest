@@ -117,8 +117,10 @@
 
 					clientResponse.on('end', function () {
 						// Create the final response entity
-						response.entity = buffers.length > 0 ? Buffer.concat(buffers).toString() : '';
+						var entityBuffer = Buffer.concat(buffers);
 						buffers = null;
+
+						response.entity = request.binary ? entityBuffer : entityBuffer.toString();
 
 						resolve(response);
 					});

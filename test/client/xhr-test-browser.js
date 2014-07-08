@@ -186,6 +186,12 @@
 			},
 			'should return a ResponsePromise': function () {
 				assert(client() instanceof responsePromise.ResponsePromise);
+			},
+			'should return binary data': function () {
+				var request = { method: 'GET', path: '/', binary: true };
+				return client(request).then(function (response) {
+					refute(typeof response.entity === 'string');
+				});
 			}
 		});
 		// TODO spy XmlHttpRequest
