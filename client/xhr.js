@@ -5,6 +5,8 @@
  * @author Scott Andrews
  */
 
+/* global VBArray */
+
 (function (define, global) {
 	'use strict';
 
@@ -51,6 +53,24 @@
 			return headers;
 		}
 
+		function enableBinaryResponse(client) {
+			if ('responseType' in client) {
+				client.responseType = 'arraybuffer'; // XHR2
+			} else if ('overrideMimeType' in client) {
+				client.overrideMimeType('text/plain; charset=x-user-defined'); // XHR
+			} else {
+				client.setRequestHeader('Accept-Charset', 'x-user-defined'); // IE9
+			}
+		}
+
+		function getBinaryEntity(client) {
+			if ('response' in client) {
+				return client.response; // XHR2
+			} else if (typeof VBArray === 'function') {
+				return new VBArray(client.responseBody).toArray(); // IE9
+			}
+		}
+
 		return client(function xhr(request) {
 			return new responsePromise.ResponsePromise(function (resolve, reject) {
 
@@ -90,6 +110,10 @@
 						});
 					}
 
+					if (request.binary) {
+						enableBinaryResponse(client);
+					}
+
 					headers = request.headers;
 					for (headerName in headers) {
 						/*jshint forin:false */
@@ -117,7 +141,7 @@
 								text: client.statusText
 							};
 							response.headers = parseHeaders(client.getAllResponseHeaders());
-							response.entity = client.responseText;
+							response.entity = (request.binary && getBinaryEntity(client)) || client.responseText;
 
 							if (response.status.code > 0) {
 								// check status code as readystatechange fires before error event

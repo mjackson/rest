@@ -175,6 +175,12 @@
 			},
 			'should return a ResponsePromise': function () {
 				assert(client() instanceof responsePromise.ResponsePromise);
+			},
+			'should return binary data': function () {
+				var request = { path: 'http://localhost:8080/', method: 'GET', binary: true };
+				return client(request).then(function (response) {
+					assert(Buffer.isBuffer(response.entity));
+				}).otherwise(fail);
 			}
 		});
 

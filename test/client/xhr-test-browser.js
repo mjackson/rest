@@ -208,6 +208,12 @@
 				}).then(function (response) {
 					refute('Content-Type' in response.raw.requestHeaders);
 				});
+			},
+			'should return binary data': function () {
+				var request = { method: 'GET', path: '/', binary: true };
+				return client(request).then(function (response) {
+					refute(typeof response.entity === 'string');
+				});
 			}
 		});
 		// TODO spy XmlHttpRequest
